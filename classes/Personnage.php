@@ -19,16 +19,22 @@ class Personnage {
     /*
      * Méthode de construction
      */
-    public function __construct($param) {
-        
+    public function __construct(array $datas) {
+        $this->hydrate($datas);
     }
     
     
     /*
      * Methode d'hydratation
      */
-    public function hydrate($param) {
-        
+    public function hydrate(array $datas) {
+        foreach ($datas as $key => $value) {
+            $method = 'set'.ucfirst($key);
+            
+            if (method_exists($this, $method)) {
+                $this->$method($value);
+            }
+        }
     }
     
     
