@@ -11,9 +11,9 @@ class Personnage {
     /*
      * Déclaration des constantes
      */
-    const DETECT_ME     = 1;
-    const PERSO_DEAD    = 2;
-    const PERSO_COUP    = 3;
+    const DETECT_ME     = 1; // Constante renvoyée par la méthode frapperUnPersonnage - détecte si on se frappe soi-même
+    const PERSO_DEAD    = 2; // Constante renvoyée par la méthode frapperUnPersonnage - détecte si un personnage est tué en le frappant
+    const PERSO_COUP    = 3; // Constante renvoyée par la méthode frapperUnPersonnage - détecte si un coup est bien porté à un personnage
 
 
     /*
@@ -42,14 +42,28 @@ class Personnage {
      * Méthodes génériques
      */
     // Methode de gestion de la frappe d'un personnage sur un autre
-    public function frapper(Personnage $persoAFrapper) {
+    public function frapperUnPersonnage(Personnage $persoAFrapper) {
+        if ($persoAFrapper->getId() == $this->_id) {
+            return self::DETECT_ME;
+        }
         
+        // Indication au personnage qu'il reçoit un coup / des dégats
+        // Puis on retourne la valeur renvoyée par la méthode : self::PERSONNAGE_TUE ou self::PERSONNAGE_FRAPPE
+        return $persoAFrapper->recevoirUnCoup();
     }
     
     // Methode de gestion de réception d'un coup, d'un dégat
     // Augmentation des dégats par 10 - à 100 de dégats ou plus le personnage est mort
-    public function recevoirUnCoup($param) {
+    public function recevoirUnCoup() {
+        $this->_degats += 5;
         
+        // 100 ou plus de dégats => le personnage est tué
+        if ($this->_degats >= 100) {
+            return self::PERSO_DEAD;
+        }
+        
+        // Le personnage reçoit un coup
+        return self::PERSO_COUP;
     }
     
     
