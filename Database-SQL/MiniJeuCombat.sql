@@ -17,10 +17,10 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Structure de la table `personnages`
+-- Structure de la table `Personnages`
 --
 
-CREATE TABLE `personnages` (
+CREATE TABLE `Personnages` (
   `id` smallint(5) unsigned NOT NULL,
   `nom` varchar(50) NOT NULL,
   `degats` tinyint(3) unsigned NOT NULL DEFAULT '0'
@@ -33,7 +33,7 @@ CREATE TABLE `personnages` (
 --
 -- Index pour la table `personnages`
 --
-ALTER TABLE `personnages`
+ALTER TABLE `Personnages`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `nom` (`nom`);
 
@@ -44,5 +44,5 @@ ALTER TABLE `personnages`
 --
 -- AUTO_INCREMENT pour la table `personnages`
 --
-ALTER TABLE `personnages`
+ALTER TABLE `Personnages`
   MODIFY `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT;
