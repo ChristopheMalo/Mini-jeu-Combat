@@ -10,6 +10,7 @@ Développement d'un mini-jeu de combat en POO et PHP
 - Intégration de Boostrap
 - Utilisation d'une CSS personnalisée
 - Développement d'un script de combat
+- Utilisation du système de sessions
 
 ## Copyright
 Openclassrooms - Adaptation Christophe Malo

@@ -11,6 +11,22 @@ function chargerMesClasses($classes) {
 
 spl_autoload_register('chargerMesClasses');
 
+session_start(); // Démarrage de la session
+
+// Desctruction de la session gâce au lien Déconnexion
+// Pour permettre l'utilisation d'un autre personnage sur le même ordinateur
+// Ou alors la création d'un nouveau personnage
+if (isset($_GET['deconnexion'])) {
+    session_destroy();
+    header('Location: .');
+    exit();
+}
+
+// SI la session perso existe, on restaure l'objet
+if (isset($_SESSION['perso'])) {
+    $perso = $_SESSION['perso'];
+}
+
 $db = new ConfigurationPDO(); // Utilisation d'une instance de la class PDO pour la connexion à la BDD
 $bdd = $db->bdd();
 
@@ -101,6 +117,7 @@ elseif (isset($_POST['utiliser']) && isset($_POST['personnageNom'])) // Si souha
             // Si utilisation d'un personnage
             if (isset($perso)) {
             ?>
+                <div class="row col-sm-12"><a class="btn btn-default btn-lg pull-right" href="?deconnexion=1" role="button">Déconnexion</a></div>
                 <section class="row col-sm-12">
                     <fieldset>
                         <legend>Mes informations</legend>
@@ -157,3 +174,14 @@ elseif (isset($_POST['utiliser']) && isset($_POST['personnageNom'])) // Si souha
         </div>
     </body>
 </html>
+<?php
+// Si création d'un personnage alors stockage dans une variable SESSION pour économie requête SQL
+if (isset($perso)) {
+    $_SESSION['perso'] = $perso;
+    
+    // Débug variable $_SESSION
+    //echo '<pre>';
+        //print_r($_SESSION);
+    //echo '</pre>';
+}
+?>
