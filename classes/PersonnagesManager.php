@@ -58,7 +58,7 @@ class PersonnagesManager {
         $req->bindValue(':degats', $perso->getDegats(), PDO::PARAM_INT);
         $req->bindValue(':id',     $perso->getId(),     PDO::PARAM_INT);
         
-        $req->execute;
+        $req->execute();
         
         $req->closeCursor(); // close request
     }
@@ -120,7 +120,7 @@ class PersonnagesManager {
         
         return $persos;
         
-        $req->closeCursor; // close request
+        $req->closeCursor(); // close request
     }
     
     // Méthode pour compter le nombre de personnage
