@@ -13,7 +13,7 @@ spl_autoload_register('chargerMesClasses');
 
 session_start(); // Démarrage de la session
 
-// Desctruction de la session gâce au lien Déconnexion
+// Desctruction de la session grâce au lien Déconnexion
 // Pour permettre l'utilisation d'un autre personnage sur le même ordinateur
 // Ou alors la création d'un nouveau personnage
 if (isset($_GET['deconnexion'])) {
@@ -22,7 +22,7 @@ if (isset($_GET['deconnexion'])) {
     exit();
 }
 
-// SI la session perso existe, on restaure l'objet
+// Si la session perso existe, on restaure l'objet
 if (isset($_SESSION['perso'])) {
     $perso = $_SESSION['perso'];
 }
@@ -55,7 +55,7 @@ if (isset($_POST['creer']) && isset($_POST['personnageNom']))
 }
 
 elseif (isset($_POST['utiliser']) && isset($_POST['personnageNom'])) // Si souhait utilisation d'un personnage existant
-    {
+{
     if ($manager->ifPersonnageExist($_POST['personnageNom'])) // SI le personnage existe
     {
         $perso = $manager->getPersonnage($_POST['personnageNom']);
@@ -63,6 +63,52 @@ elseif (isset($_POST['utiliser']) && isset($_POST['personnageNom'])) // Si souha
     else
     {
         $message = 'Ce personnage n\'existe pas'; // Message si le personnage n'existe pas
+    }
+}
+
+// Si on clique sur un personnage pour le frapper
+elseif (isset($_GET['frapperUnPersonnage']))
+{
+    if (!isset($perso))
+    {
+        $message = 'Merci de créer un personnage ou de vous identifier';
+    }
+    
+    else
+    {
+        if (!$manager->ifPersonnageExist((int) $_GET['frapperUnPersonnage']))
+        {
+            $message = 'Le personnage que vous voulez attaquer n\'existe pas';
+        }
+        
+        else
+        {
+            $persoAFrapper = $manager->getPersonnage((int) $_GET['frapperUnPersonnage']);
+            
+            // Gestion d'affichage des erreurs renvoyés par la méthode frapperUnPersonnage
+            $retour = $perso->frapperUnPersonnage($persoAFrapper);
+            
+            switch ($retour)
+            {
+                case Personnage::DETECT_ME :
+                    $message = 'Mais...c\'est moi...Stupid idiot !!!';
+                    break;
+                case Personnage::PERSO_COUP :
+                    $message = 'Le personnage a bien été atteint';
+                    
+                    $manager->updatePersonnage($perso);
+                    $manager->updatePersonnage($persoAFrapper);
+                    
+                    break;
+                case Personnage::PERSO_DEAD;
+                    $message = 'Vous avez tué ce personnage !';
+                    
+                    $manager->updatePersonnage($perso);
+                    $manager->deletePersonnage($persoAFrapper);
+                    
+                    break;
+            }
+        }
     }
 }
 
