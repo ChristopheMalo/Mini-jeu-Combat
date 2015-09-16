@@ -66,6 +66,12 @@ class Personnage {
         return self::PERSO_COUP;
     }
     
+    // Methode qui détermine si le nom du personnage est valide - champ non vide
+    public function validName() {
+        // return bool - True or False
+        return !empty($this->_nom);
+    }
+    
     
     /*
      * Méthodes Accesseurs (Getters) - Pour récupérer / lire la valeur d'un attribut
