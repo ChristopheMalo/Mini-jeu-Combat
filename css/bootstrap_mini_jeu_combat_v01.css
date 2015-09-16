@@ -1,0 +1,29 @@
+/**
+ * Mini jeu de combat
+ * TP MOOC POO - PHP OpenClassrooms
+ * Adaptation CHristophe Malo
+ *
+ * @project     Mini-Jeu-Combat
+ * @namefile    bootstrap_mini_jeu_combat_v01.css
+ * @fileversion 1.0.0
+ * @cssversion  css3
+ * @author      Christophe Malo
+ * @copyright   2015 by the author & openclassrooms
+ * @license     no license - free to use - just link to my github - Thanks :)
+ * @mygithub    https://github.com/ChristopheMalo    
+*/
+/**
+
+/**
+ * -------------------------
+ * Generique
+ * -------------------------
+ */
+[class*="col-"] {
+    background-color: #c9bad7;
+    border: 1px solid #948b9d;
+    border-radius: 6px;
+    color: #6a6073;
+    //line-height: 40px;
+    text-align: center;
+}
