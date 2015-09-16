@@ -147,7 +147,7 @@ class PersonnagesManager {
                                        FROM Personnages
                                       WHERE nom = :nom');
         $req->execute([':nom' => $info]);
-        return (bool) $req->fetchColumn;
+        return (bool) $req->fetchColumn();
         
         $req->closeCursor(); // Close request
     }
