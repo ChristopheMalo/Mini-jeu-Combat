@@ -11,6 +11,9 @@ Développement d'un mini-jeu de combat en POO et PHP
 - Utilisation d'une CSS personnalisée
 - Développement d'un script de combat
 - Utilisation du système de sessions
+- AJout de nouveaux attributs aux personnages de base
+- Création de nouveaux type de personnage
+- Utilisation de l'héritage
 
 ## Copyright
 Openclassrooms - Adaptation Christophe Malo
