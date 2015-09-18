@@ -24,7 +24,7 @@ CREATE TABLE `Personnages_v2` (
   `id` smallint(5) unsigned NOT NULL,
   `nom` varchar(50) NOT NULL,
   `degats` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `timeEndormi` int(10) unsigned NOT NULL DEFAULT '0',
+  `timeToBeAsleep` int(10) unsigned NOT NULL DEFAULT '0',
   `type` enum('magicien','guerrier') NOT NULL,
   `atout` tinyint(3) unsigned NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
