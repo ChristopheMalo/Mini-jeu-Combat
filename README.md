@@ -12,7 +12,7 @@ Développement d'un mini-jeu de combat en POO et PHP
 - Développement d'un script de combat
 - Utilisation du système de sessions
 - AJout de nouveaux attributs aux personnages de base
-- Création de nouveaux type de personnage
+- Création de nouveaux types de personnages
 - Utilisation de l'héritage
 
 ## Copyright
