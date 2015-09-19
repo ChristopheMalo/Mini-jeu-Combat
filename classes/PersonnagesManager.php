@@ -31,7 +31,7 @@ class PersonnagesManager {
      *  il faut utiliser bindValue et non bind Param
      */
     public function addPersonnage(Personnage $perso) {
-        $req = $this->_bdd->prepare('INSERT INTO Personnages
+        $req = $this->_bdd->prepare('INSERT INTO Personnages_v2
                                              SET nom = :nom'); // prepare INSERT request
         $req->bindValue(':nom', $perso->getNom(), PDO::PARAM_STR);      // Assign Value Personnage
         $req->execute();                                                // execute request
@@ -50,7 +50,7 @@ class PersonnagesManager {
         // prepare UPDATE request
         // assign value to request
         // execute request
-        $req = $this->_bdd->prepare('UPDATE Personnages
+        $req = $this->_bdd->prepare('UPDATE Personnages_v2
                                         SET degats = :degats
                                       WHERE id = :id
                                     ');
@@ -65,7 +65,7 @@ class PersonnagesManager {
     
     // Methode de suppression d'un personnage dans la BDD
     public function deletePersonnage(Personnage $perso) {
-        $this->_bdd->exec('DELETE FROM Personnages
+        $this->_bdd->exec('DELETE FROM Personnages_v2
                                  WHERE id = ' . $perso->getId());// execute DELETE request
     }
     
@@ -76,7 +76,7 @@ class PersonnagesManager {
         // return a Personnage object
         if (is_int($info)) {
             $req = $this->_bdd->query('SELECT id, nom, degats
-                                         FROM Personnages
+                                         FROM Personnages_v2
                                         WHERE id = ' . $info);
             $datas = $req->fetch(PDO::FETCH_ASSOC);
             
@@ -88,7 +88,7 @@ class PersonnagesManager {
         // return a Personnage object
         else {
             $req = $this->_bdd->prepare('SELECT id, nom, degats
-                                           FROM Personnages
+                                           FROM Personnages_v2
                                           WHERE nom = :nom');
             $req->execute([':nom' => $info]);
             
@@ -109,7 +109,7 @@ class PersonnagesManager {
         $persos = [];
         
         $req = $this->_bdd->prepare('SELECT id, nom, degats
-                                       FROM Personnages
+                                       FROM Personnages_v2
                                       WHERE nom <> :nom
                                       ORDER BY nom');
         $req->execute([':nom' => $nom]);
@@ -126,7 +126,7 @@ class PersonnagesManager {
     // Méthode pour compter le nombre de personnage
     public function countPersonnages() {
         return $this->_bdd->query('SELECT COUNT(*)
-                                     FROM Personnages')->fetchColumn();// execute COUNT() request and RETURN result
+                                     FROM Personnages_v2')->fetchColumn();// execute COUNT() request and RETURN result
     }
     
     // Méthode pour déterminer si un personnage exist
@@ -136,7 +136,7 @@ class PersonnagesManager {
         // return a BOOL.
         if (is_int($info)) {
             return (bool) $this->_bdd->query('SELECT COUNT(*)
-                                                FROM Personnages
+                                                FROM Personnages_v2
                                                WHERE id = ' . $info)->fetchColumn();
         }
         
@@ -144,7 +144,7 @@ class PersonnagesManager {
         // execute COUNT() request with WHERE clause
         // return a BOOL.
         $req = $this->_bdd->prepare('SELECT COUNT(*)
-                                       FROM Personnages
+                                       FROM Personnages_v2
                                       WHERE nom = :nom');
         $req->execute([':nom' => $info]);
         return (bool) $req->fetchColumn();
