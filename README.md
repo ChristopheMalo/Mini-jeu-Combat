@@ -16,6 +16,8 @@ Développement d'un mini-jeu de combat en POO et PHP
 - Utilisation de l'héritage
 - Transformation de la classe Personnage en Abstract
 - Passage des attributs en Protected - attention notation PEAR $attribut et nom $_attribut
+- Modification du manager
+- Update de l'index pour prendre en compte l'héritage
 
 ## Copyright
 Openclassrooms - Adaptation Christophe Malo
