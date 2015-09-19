@@ -64,7 +64,7 @@ abstract class Personnage {
     }
     
     // Methode de gestion de réception d'un coup, d'un dégat
-    // Augmentation des dégats par 10 - à 100 de dégats ou plus le personnage est mort
+    // Augmentation des dégats par 5 - à 100 de dégats ou plus le personnage est mort
     public function recevoirUnCoup() {
         $this->degats += 5;
         
