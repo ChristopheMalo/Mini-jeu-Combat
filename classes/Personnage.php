@@ -27,7 +27,7 @@ abstract class Personnage {
      */
     public function __construct(array $datas) {
         $this->hydrate($datas);
-        $this->type = strtolower(static::class);
+        $this->getType() = strtolower(static::class);
     }
     
     
@@ -50,7 +50,7 @@ abstract class Personnage {
      */
     // Methode de gestion de la frappe d'un personnage sur un autre
     public function frapperUnPersonnage(Personnage $persoAFrapper) {
-        if ($persoAFrapper->id == $this->id) {
+        if ($persoAFrapper->getId() == $this->id) {
             return self::DETECT_ME;
         }
         
