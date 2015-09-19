@@ -32,8 +32,9 @@ class PersonnagesManager {
      */
     public function addPersonnage(Personnage $perso) {
         $req = $this->bdd->prepare('INSERT INTO Personnages_v2
-                                             SET nom    = :nom
-                                                 type   = :type');          // prepare INSERT request
+                                             SET nom    = :nom,
+                                                 type   = :type
+                                   ');          // prepare INSERT request
         $req->bindValue(':nom',     $perso->getNom(),   PDO::PARAM_STR);    // Assign Value Personnage
         $req->bindValue(':type',    $perso->getType(),  PDO::PARAM_STR);    // Assign Value Type
         $req->execute();                                                    // execute request
