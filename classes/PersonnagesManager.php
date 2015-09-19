@@ -3,7 +3,7 @@ class PersonnagesManager {
     /*
      * Attributs
      */
-    private $_bdd; // Instance de PDO
+    private $bdd; // Instance de PDO
     
     
     /*
@@ -18,7 +18,7 @@ class PersonnagesManager {
      * Méthodes Mutateurs (Setters) - Pour modifier la valeur des attributs
      */
     public function setDb(PDO $bdd) {
-        $this->_bdd = $bdd;
+        $this->bdd = $bdd;
     }
     
     
@@ -31,15 +31,18 @@ class PersonnagesManager {
      *  il faut utiliser bindValue et non bind Param
      */
     public function addPersonnage(Personnage $perso) {
-        $req = $this->_bdd->prepare('INSERT INTO Personnages_v2
-                                             SET nom = :nom'); // prepare INSERT request
-        $req->bindValue(':nom', $perso->getNom(), PDO::PARAM_STR);      // Assign Value Personnage
-        $req->execute();                                                // execute request
+        $req = $this->bdd->prepare('INSERT INTO Personnages_v2
+                                             SET nom    = :nom
+                                                 type   = :type');          // prepare INSERT request
+        $req->bindValue(':nom',     $perso->getNom(),   PDO::PARAM_STR);    // Assign Value Personnage
+        $req->bindValue(':type',    $perso->getType(),  PDO::PARAM_STR);    // Assign Value Type
+        $req->execute();                                                    // execute request
     
         // hydrate personnage with id and degats - initial = 0
         $perso->hydrate([
-            'id'     => $this->_bdd->lastInsertId(),
+            'id'     => $this->bdd->lastInsertId(),
             'degats' => 0,
+            'atout'  => 0
         ]);
         
         $req->closeCursor(); // close request
@@ -50,13 +53,17 @@ class PersonnagesManager {
         // prepare UPDATE request
         // assign value to request
         // execute request
-        $req = $this->_bdd->prepare('UPDATE Personnages_v2
-                                        SET degats = :degats
+        $req = $this->bdd->prepare('UPDATE Personnages_v2
+                                        SET degats          = :degats,
+                                            timeToBeAsleep  = :timeToBeAsleep,
+                                            atout           = :atout
                                       WHERE id = :id
                                     ');
         
-        $req->bindValue(':degats', $perso->getDegats(), PDO::PARAM_INT);
-        $req->bindValue(':id',     $perso->getId(),     PDO::PARAM_INT);
+        $req->bindValue(':degats',          $perso->getDegats(),            PDO::PARAM_INT);
+        $req->bindValue(':timeToBeAsleep',  $perso->getTimeToBeAsleep(),    PDO::PARAM_INT);
+        $req->bindValue(':atout',           $perso->getAtout(),             PDO::PARAM_INT);
+        $req->bindValue(':id',              $perso->getId(),                PDO::PARAM_INT);
         
         $req->execute();
         
@@ -65,7 +72,7 @@ class PersonnagesManager {
     
     // Methode de suppression d'un personnage dans la BDD
     public function deletePersonnage(Personnage $perso) {
-        $this->_bdd->exec('DELETE FROM Personnages_v2
+        $this->bdd->exec('DELETE FROM Personnages_v2
                                  WHERE id = ' . $perso->getId());// execute DELETE request
     }
     
@@ -73,26 +80,28 @@ class PersonnagesManager {
     public function getPersonnage($info) {
         // if INT
         // execute SELECT request with WHERE clause
-        // return a Personnage object
         if (is_int($info)) {
-            $req = $this->_bdd->query('SELECT id, nom, degats
+            $req = $this->bdd->query('SELECT id, nom, degats, timeToBeAsleep, type, atout
                                          FROM Personnages_v2
                                         WHERE id = ' . $info);
-            $datas = $req->fetch(PDO::FETCH_ASSOC);
-            
-            return new Personnage($datas);
+            $datasOfPerso = $req->fetch(PDO::FETCH_ASSOC);
         }
     
         // else NAME.
         // execute SELECT request with WHERE clause
-        // return a Personnage object
         else {
-            $req = $this->_bdd->prepare('SELECT id, nom, degats
+            $req = $this->bdd->prepare('SELECT id, nom, degats, timeToBeAsleep, type, atout
                                            FROM Personnages_v2
                                           WHERE nom = :nom');
             $req->execute([':nom' => $info]);
             
-            return new Personnage($req->fetch(PDO::FETCH_ASSOC));
+            $datasOfPerso = $req->fetch(PDO::FETCH_ASSOC);
+        }
+        
+        switch ($datasOfPerso['type']) {
+            case 'guerrier' : return new Guerrier($datasOfPerso);
+            case 'magicien' : return new Magicien($datasOfPerso);
+            default : return null;
         }
         
         $req->closeCursor(); // close request
@@ -108,14 +117,19 @@ class PersonnagesManager {
         // result is an array of personnage (instance)
         $persos = [];
         
-        $req = $this->_bdd->prepare('SELECT id, nom, degats
-                                       FROM Personnages_v2
-                                      WHERE nom <> :nom
-                                      ORDER BY nom');
+        $req = $this->bdd->prepare('SELECT id, nom, degats, timeToBeAsleep, type, atout
+                                      FROM Personnages_v2
+                                     WHERE nom <> :nom
+                                     ORDER BY nom');
         $req->execute([':nom' => $nom]);
         
         while ($datas = $req->fetch(PDO::FETCH_ASSOC)) {
-            $persos[] = new Personnage($datas);
+            switch ($datas['type']) {
+                case 'guerrier' : $persos[] = new Guerrier($datas);
+                    break;
+                case 'magicien' : $persos[] = new Magicien($datas);
+                    break;
+            }
         }
         
         return $persos;
@@ -125,7 +139,7 @@ class PersonnagesManager {
     
     // Méthode pour compter le nombre de personnage
     public function countPersonnages() {
-        return $this->_bdd->query('SELECT COUNT(*)
+        return $this->bdd->query('SELECT COUNT(*)
                                      FROM Personnages_v2')->fetchColumn();// execute COUNT() request and RETURN result
     }
     
@@ -135,7 +149,7 @@ class PersonnagesManager {
         // then execute COUNT() request with WHERE clause
         // return a BOOL.
         if (is_int($info)) {
-            return (bool) $this->_bdd->query('SELECT COUNT(*)
+            return (bool) $this->bdd->query('SELECT COUNT(*)
                                                 FROM Personnages_v2
                                                WHERE id = ' . $info)->fetchColumn();
         }
@@ -143,7 +157,7 @@ class PersonnagesManager {
         // Sinon verif if value is name and exists
         // execute COUNT() request with WHERE clause
         // return a BOOL.
-        $req = $this->_bdd->prepare('SELECT COUNT(*)
+        $req = $this->bdd->prepare('SELECT COUNT(*)
                                        FROM Personnages_v2
                                       WHERE nom = :nom');
         $req->execute([':nom' => $info]);
