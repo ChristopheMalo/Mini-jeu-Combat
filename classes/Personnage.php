@@ -27,7 +27,7 @@ abstract class Personnage {
      */
     public function __construct(array $datas) {
         $this->hydrate($datas);
-        $this->getType() = strtolower(static::class);
+        $this->type = strtolower(static::class);
     }
     
     
