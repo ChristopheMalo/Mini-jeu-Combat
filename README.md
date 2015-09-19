@@ -14,6 +14,8 @@ Développement d'un mini-jeu de combat en POO et PHP
 - AJout de nouveaux attributs aux personnages de base
 - Création de nouveaux types de personnages
 - Utilisation de l'héritage
+- Transformation de la classe Personnage en Abstract
+- Passage des attributs en Protected - attention notation PEAR $attribut et nom $_attribut
 
 ## Copyright
 Openclassrooms - Adaptation Christophe Malo
