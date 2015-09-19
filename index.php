@@ -35,22 +35,39 @@ $manager = new PersonnagesManager($bdd);
 // Si souhait création personnage
 if (isset($_POST['creer']) && isset($_POST['personnageNom']))
 {
-    $perso = new Personnage(['nom' => htmlspecialchars(strip_tags($_POST['personnageNom']))]); // Création du personnage
-
-    if (!$perso->validName())
-    {
-        $message = 'Le nom choisi n\'est pas valide.';
-        unset($perso);
+    switch ($_POST['personnageType']) {
+        case 'magicien' :
+            $perso = new Magicien(['nom' => $_POST['personnageNom']]);
+            break;
+        case 'guerrier' :
+            $perso = new Guerrier(['nom' => $_POST['personnageNom']]);
+            break;
+        default :
+            $message = 'Le type du personnage n\'est pas valide';
+            unset($perso);
+            break;
     }
-    elseif ($manager->ifPersonnageExist($perso->getNom()))
+    
+    // Si le type du personnage est valide - le perdsonnage est créé
+    if(isset($perso))
     {
-        $message = 'Le nom du personnage est déjà utilisé.';
-        unset($perso);
-    }
-    else
-    {
-        $manager->addPersonnage($perso);
-        $message = 'Le personnage est créé.';
+        if (!$perso->validName())
+        {
+            $message = 'Le nom choisi n\'est pas valide.';
+            unset($perso);
+        }
+        
+        elseif ($manager->ifPersonnageExist($perso->getNom()))
+        {
+            $message = 'Le nom du personnage est déjà utilisé.';
+            unset($perso);
+        }
+        
+        else
+        {
+            $manager->addPersonnage($perso);
+            $message = 'Le personnage est créé.';
+        }
     }
 }
 
@@ -92,7 +109,9 @@ elseif (isset($_GET['frapperUnPersonnage']))
             {
                 case Personnage::DETECT_ME :
                     $message = 'Mais...c\'est moi...Stupid idiot !!!';
+                    
                     break;
+                
                 case Personnage::PERSO_COUP :
                     $message = 'Le personnage a bien été atteint';
                     
@@ -100,17 +119,82 @@ elseif (isset($_GET['frapperUnPersonnage']))
                     $manager->updatePersonnage($persoAFrapper);
                     
                     break;
-                case Personnage::PERSO_DEAD;
+                
+                case Personnage::PERSO_DEAD :
                     $message = 'Vous avez tué ce personnage !';
                     
                     $manager->updatePersonnage($perso);
                     $manager->deletePersonnage($persoAFrapper);
                     
                     break;
+                
+                case Personnage::PERSO_ASLEEP :
+                    $message = 'Vous êtes endormi et ne pouvez pas frapper un adversaire';
+                    
+                    break;
             }
         }
     }
 }
+
+// Si le personnage est un magicien et qu'il veut lancer un sort
+elseif (isset($_GET['envouter']))
+{
+    if (!isset($perso))
+    {
+        $message = 'Merci de créer une personnage ou de vous identifier';
+    }
+    
+    else
+    {
+        // Vérifier si personnage est un Magicien
+        if ($perso->getType() != 'magicien')
+        {
+            $message = 'Vous n\êtes pas un magicien...Vous ne pouvez pas envouter un adversaire';
+        }
+        
+        else
+        {
+            if (!$manager->ifPersonnageExist((int) $_GET['envouter']))
+            {
+                $message = 'Le personnage que vous voulez envouyter n\existe pas';
+            }
+            
+            else
+            {
+                $persoAEnvouter = $manager->getPersonnage((int) $_GET['envouter']);
+                $retour = $perso->lancerUnSort($persoAEnvouter);
+                
+                switch ($retour)
+                {
+                    case Personnage::DETECT_ME :
+                        $message = 'Stupid idiot...Je ne peux m\'envouter';
+                        
+                        break;
+                    
+                    case Personnage::PERSO_ENVOUTE :
+                        $message = 'Votre adversaire est bien envouté';
+                        
+                        $manager->updatePersonnage($perso);
+                        $manager->updatePersonnage($persoAEnvouter);
+                        
+                        break;
+                    
+                    case Personnage::NO_MAGIE :
+                        $message = 'Vous n\'avez pas assez de magie !';
+                        
+                        break;
+                    
+                    case Personnage::PERSO_ASLEEP :
+                        $message = 'Vous êtes endormi, vous ne pouvez pas lancer de sort !';
+                        
+                        break;
+                }
+            }
+        }
+    }
+}
+
 
 ?>
 <!DOCTYPE html>
@@ -168,21 +252,50 @@ elseif (isset($_GET['frapperUnPersonnage']))
                     <fieldset>
                         <legend>Mes informations</legend>
                         <p>
-                            Nom : <?= htmlspecialchars($perso->getNom()); ?><br>
-                            Dégâts : <?= $perso->getDegats(); ?>
+                            Nom : <?= htmlspecialchars($perso->getNom()) ?><br>
+                            Dégâts : <?= $perso->getDegats() ?><br>
+                            Type : <?= ucfirst($perso->getType()) ?><br>
+                            <?php
+                            // Affichage Atout du personnage selon son type
+                            switch ($perso->getType()) {
+                                case 'guerrier' :
+                                    echo 'Protection : ';
+                                    break;
+                                case 'magicien' :
+                                    echo 'Magie : ';
+                                    break;
+                            }
+                            
+                            echo $perso->getAtout();
+                            ?>
                         </p>
                     </fieldset>
                     <fieldset>
                         <legend>Qui frapper ?</legend>
                         <p>
                         <?php
+                        // R2cupérer la liste de tous les personnages par ordre alphabétique dont le nom est différent du personnage choisi
                             $persos = $manager->getListPersonnages($perso->getNom());
                             
                             if (empty($persos)) {
                                 echo 'Il n\'y aucun adversaire';
-                            } else {
-                                foreach ($persos as $onePerson) {
-                                    echo '<a href="?frapperUnPersonnage=' . $onePerson->getId() . '">' . htmlspecialchars($onePerson->getNom()) . '</a> (Dégats : ' . $onePerson->getDegats() .')<br>';
+                            }
+                            
+                            else {
+                                if ($perso->toBeAsleep()) {
+                                    echo 'Un magicien vous a endormi ! Vous allez vous réveiller dans ' . $perso->reveil() . '.';
+                                }
+                                
+                                else {
+                                    foreach ($persos as $onePerson) {
+                                        echo '<a href="?frapperUnPersonnage=' . $onePerson->getId() . '">' . htmlspecialchars($onePerson->getNom()) . '</a> (Dégats : ' . $onePerson->getDegats() . ' - type : ' . $onePerson->getType() . ')';
+                                        
+                                        if ($perso->getType() == 'magicien') {
+                                            echo ' - <a href="?envouter=' . $onePerson->getId() . '">Lancer un sort</a>';
+                                        }
+                                        
+                                        echo '<br>';
+                                    }
                                 }
                             }
                         ?>
@@ -199,12 +312,21 @@ elseif (isset($_GET['frapperUnPersonnage']))
                     <form class="form-horizontal" method="post">
                         <!-- Champ de saisie texte une ligne -->
                         <div class="form-group form-group-lg">
-                            <label for="personnageNom" class="col xs-12 col-sm-4 col-md-3 control-label">Nom du personnage : </label>
+                            <label for="personnageNom" class="col-xs-12 col-sm-4 col-md-3 control-label">Nom du personnage : </label>
                             <div class="col-xs-12 col-sm-8 col-md-9 focus"> 
-                                <input class="form-control" type="text" name="personnageNom" id="prenom" placeholder="Nom du personnage" autofocus required />
+                                <input class="form-control input-lg" type="text" name="personnageNom" id="prenom" placeholder="Nom du personnage" autofocus required />
+                            </div>
+                            
+                        </div>
+                        <div class="form-group form-group-lg">
+                            <label for="personnageType" class="col-xs-12 col-sm-4 col-md-3 control-label">Type du personnage : </label>
+                            <div class="col-xs-12 col-sm-8 col-md-9">
+                                <select class="form-control input-lg" name="personnageType">
+                                    <option value="magicien">Magicien</option>
+                                    <option value="guerrier">Guerrier</option>
+                                </select>
                             </div>
                         </div>
-
                         <button type="submit" class="btn btn-default btn-lg pull-right" value="Créer le personnage" name="creer">Créer le personnage</button>
                         <button type="submit" class="btn btn-default btn-lg pull-right" value="Utiliser le personnage" name="utiliser">Utiliser le personnage</button>
                     </form>
